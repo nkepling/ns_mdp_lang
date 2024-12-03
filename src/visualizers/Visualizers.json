@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "ResultsViz",
+    "title": "ResultsViz",
+    "panel": "panels/ResultsViz/ResultsVizPanel",
+    "DEBUG_ONLY": false
+  }
+]
