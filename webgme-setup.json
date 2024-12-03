@@ -1,4 +1,15 @@
 {
-  "components": {},
-  "dependencies": {}
+  "components": {
+    "plugins": {
+      "ExperimentCodeGenerator": {
+        "src": "src/plugins/ExperimentCodeGenerator",
+        "test": "test/plugins/ExperimentCodeGenerator"
+      }
+    },
+    "routers": {}
+  },
+  "dependencies": {
+    "plugins": {},
+    "routers": {}
+  }
 }
