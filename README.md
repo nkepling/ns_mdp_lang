@@ -14,7 +14,7 @@ Then, run `webgme start` from the project root to start . Finally, navigate to `
 ## Docker instructions: 
 ```(bash)
 # Clone the repository:
-git clone https://github.com/your-username/your-repository-name.git
+git clone https://github.com/nkepling/ns_mdp_lang
 
 # We are running mongo in a separate container. To run mongo:
 docker pull mongo
