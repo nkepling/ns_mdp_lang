@@ -24,3 +24,5 @@ docker run -d -v ~/dockershare/db:/data/db --name mongo mongo'
 docker build -t webgme .
 docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --link mongo:mongo --name=webgme webgme
 ```
+
+Finally, navigate to http://localhost:8888 to start using NS-MDP !
