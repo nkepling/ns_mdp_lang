@@ -4,12 +4,26 @@
       "ExperimentCodeGenerator": {
         "src": "src/plugins/ExperimentCodeGenerator",
         "test": "test/plugins/ExperimentCodeGenerator"
+      },
+      "RunExperimentCode": {
+        "src": "src/plugins/RunExperimentCode",
+        "test": "test/plugins/RunExperimentCode"
       }
     },
-    "routers": {}
+    "routers": {},
+    "visualizers": {
+      "ResultsViz": {
+        "src": "panels/ResultsViz/ResultsVizPanel",
+        "title": "ResultsViz",
+        "panel": "src/visualizers/panels/ResultsViz",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/ResultsViz"
+      }
+    }
   },
   "dependencies": {
     "plugins": {},
-    "routers": {}
+    "routers": {},
+    "visualizers": {}
   }
 }
