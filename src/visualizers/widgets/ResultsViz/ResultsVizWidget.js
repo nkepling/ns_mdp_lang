@@ -11,10 +11,12 @@ define(['plotly',
 
     var WIDGET_CLASS = 'results-viz';
 
-    function ResultsVizWidget(logger, container) {
+    function ResultsVizWidget(logger, container, client) {
         this._logger = logger.fork('Widget');
 
         this._el = container;
+        
+        this._client = client;
 
         this.nodes = {};
         this._initialize();
@@ -31,7 +33,7 @@ define(['plotly',
         this._el.addClass(WIDGET_CLASS);
 
         // Create a dummy header
-        this._el.append('<h3>NS-MDP Experiment Results Visualization:</h3>');
+        this._el.append('<h3>NS-MDP Experiment Results Visualization</h3>');
 
         this._el.append('<div id="plot-container" style="width:100%; height:400px;"></div>');
         
@@ -68,7 +70,12 @@ define(['plotly',
                 desc.childrenIds.length + ' ' + label + '.';
             
             // Place holder log function... 
-            this.plotLogs()
+
+            
+
+            this.plotLogs(desc);
+
+            
             
             this._el.append(node);
             node.onclick = this.onNodeClick.bind(this, desc.id);
@@ -94,11 +101,12 @@ define(['plotly',
         //Load JSON experiment data from the node a
 
         var self = this;
-        var node = this._client.getNode(desc.id);
+        var nodeObj = self._client.getNode(desc.id);
+
     };
 
     /***************************** PLOT! */
-    ResultsVizWidget.prototype.plotLogs = function () {
+    ResultsVizWidget.prototype.plotLogs = function (desc) {
         var self = this;
     
         self.clearPlot();
@@ -108,18 +116,18 @@ define(['plotly',
             {
                 x: [1, 2, 3, 4, 5], // X-axis values
                 y: [10, 14, 18, 22, 26], // Y-axis values
-                type: 'scatter', // Plot type (scatter for line plot)
+                type: 'bar', // Plot type (scatter for line plot)
                 mode: 'lines+markers', // Line plot with markers
-                name: 'Sample Line Plot'
+                name: 'Sample Reward Plot'
             }
         ];
     
         // Define layout for the plot
         var layout = {
-            title: 'Simple Line Plot',
-            xaxis: { title: 'X Axis Label' },
-            yaxis: { title: 'Y Axis Label' },
-            showlegend: true
+            title: 'Sample Reward Plot (Dummy values): ' + desc.name,
+            xaxis: { title: 'Episode Number' },
+            yaxis: { title: 'Cummulative Episode Reward' },
+            showlegend: false
         };
     
         // Render the plot using Plotly
