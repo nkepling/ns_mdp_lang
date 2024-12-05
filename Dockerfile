@@ -28,8 +28,8 @@ RUN npm install
 
 # Webgme is a peer-dependency and needs to be installed explicitly. & Plotly.js is a peer dependency of webgme-bindings
 RUN npm install webgme
-RUN npm install webgme-bindings --save
-RUN npm install plotly.js-dist
+# RUN npm install webgme-bindings --save
+# RUN npm install plotly.js-dist
 
 
 #Create pyhton virtual environment
