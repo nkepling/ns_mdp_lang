@@ -81,7 +81,7 @@ class ExperimentCodeGenerator(PluginBase):
         ####### Make Env #########################
         
         make_env = "def make_env():\n"
-        make_env += "  env = gym.make('{0}')\n".format(core.get_attribute(nodes_map["gym_env"],"name"))
+        make_env += "    env = gym.make('{0}')\n".format(core.get_attribute(nodes_map["gym_env"],"name"))
         
         # Get Distribution function and scheduler
         
@@ -129,12 +129,12 @@ class ExperimentCodeGenerator(PluginBase):
                 
             #add code
             sa = ", ".join(f"{k}={v}" for k, v in sched_args.items())
-            make_env += f"  scheduler_{ind} = {sched_name}({sa}) \n"
+            make_env += f"    scheduler_{ind} = ns_gym.schedulers.{sched_name}({sa}) \n"
             da = ", ".join(f"{k}={v}" for k, v in fn_args.items())
-            make_env += f"  upateFn_{ind} = {fn_name}(scheduler_{ind}, {da}) \n"
+            make_env += f"    updateFn_{ind} = ns_gym.update_functions.{fn_name}(scheduler_{ind}, {da}) \n"
         
         # Map parametrs to update functions
-        make_env += "  param_map = {" + ", ".join(f"{param}:updateFn_{ind}" for ind,param in enumerate(param_list)) + "}\n"
+        make_env += "    param_map = {" + ", ".join(f"'{param}':updateFn_{ind}" for ind,param in enumerate(param_list)) + "}\n"
         
         # Makewrapper:
         
@@ -145,37 +145,11 @@ class ExperimentCodeGenerator(PluginBase):
         wrapper_args = ", ".join(f"{k}={v}" for k, v in zip(wn, wv) if k not in {"name", "pythonCode"})
         
         
-        make_env +="  ns_env = " +  wrapper_name + "(env, param_map, " + wrapper_args + ")\n"
-        make_env +="  return ns_env\n"
+        make_env +="    ns_env = " + "ns_gym.wrappers." + wrapper_name + "(env, param_map, " + wrapper_args + ")\n"
+        make_env +="    return ns_env\n"
         
         exp_code += make_env
         exp_code += "\n\n"
-        
-        
-        
-        ######### Run episode loop ################
-        
-        run_episode = """def run_episode(ns_env,agent):
-    obs,info = ns_env.reset() 
-    obs,_ = ns_gym.utils.type_mismatch_checker(obs,None)
-    episode_reward = 0
-    episode_trace = []
-    
-    done = False
-    truncated = False
-    while not done and not truncated:
-        action = agent.act(obs,ns_env.get_planning_env())
-        next_obs,reward,done,truncated,info = ns_env.step(action)
-        next_obs,reward = ns_gym.utils.type_mismatch_checker(next_obs,reward)
-        episode_reward += reward
-        episode_trace.append((obs,action,reward,next_obs))
-        obs = next_obs
-    
-    return episode_reward,episode_trace
-        """
-    
-        exp_code+= run_episode + "\n\n"
-        
         
         ############ Agent Set up #################
         ########################################
@@ -187,36 +161,63 @@ class ExperimentCodeGenerator(PluginBase):
         agent_args = ", ".join(f"{k}={v}" for k, v in zip(agent_arg_names, agent_arg_vals) if k not in {"name", "pythonCode"})
         
         
-        agent_code = "  agent = " + agent_name + f"({agent_args})\n"
+        agent_code = "agent = ns_gym.benchmark_algorithms." + agent_name + f"(ns_env,obs,{agent_args})\n"
         
         
+        ######### Run episode loop ################
+        
+        run_episode = f"""def run_episode(ns_env):
+    obs,info = ns_env.reset() 
+    obs,_ = ns_gym.type_mismatch_checker(obs,None)
+    {agent_code}
+    episode_reward = 0
+    episode_trace = []
+
+    def serialize(obs):
+        if isinstance(obs, np.ndarray):
+            return obs.tolist()
+        if isinstance(obs, np.integer):
+            return int(obs)
+        if isinstance(obs, np.floating):
+            return float(obs)
+        return obs
+    
+    done = False
+    truncated = False
+
+
+    while not done and not truncated:
+        action = agent.act(obs,ns_env.get_planning_env())
+        next_obs,reward,done,truncated,info = ns_env.step(action)
+        next_obs,reward = ns_gym.type_mismatch_checker(next_obs,reward)
+        episode_reward += serialize(reward)
+        episode_trace.append((serialize(obs),serialize(action),serialize(reward),serialize(next_obs)))
+        obs = next_obs
+    
+    return episode_reward,episode_trace
+        """
+    
+        exp_code+= run_episode + "\n\n"
+        
+        
+       
         
         ######## Run experiment loop #############
         
-        main_loop = """def main(num_episodes):
-    reward_list = []
-    episode_traces = {}
-    
-    ns_env = make_env()
-        """
+        main_loop = "def main(num_episodes):\n    reward_list = []\n    episode_traces = {}\n    ns_env = make_env()\n"
+
+        # main_loop += "\n" + agent_code
         
-        main_loop += "\n" + agent_code
-        
-        main_loop += """  for ep in range(num_episodes):
-        episode_reward,episode_trace = run_episode()
-        reward_list.append(episode_reward)
-        episode_traces[ep] = episode_trace
-        
-    return reward_list,episode_traces
-    """
-        
+        main_loop += "    for ep in range(num_episodes):\n"
+        main_loop+="        episode_reward,episode_trace = run_episode(ns_env)\n        reward_list.append(episode_reward)\n        episode_traces[ep] = episode_trace\n"
+        main_loop+="    return reward_list,episode_traces\n"
         num_episodes = core.get_attribute(active_node,"num_episodes")
         
         exp_code += main_loop + "\n\n"
         
-        exp_code += "main({0})".format(num_episodes)
+        exp_code += "episode_reward,episode_trace = main({0})".format(num_episodes)
         
-        ######## Save Code to File #################
+        ######## Save Code to File #################    
         logger.debug(exp_code)
         
         

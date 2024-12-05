@@ -21,9 +21,9 @@ logger = logging.getLogger('RunExperimentCode')
 
 # Modify these or add option or parse from sys.argv (as in done in run_plugin.py)
 PORT = '5555'
-PROJECT_NAME = 'Example'
+PROJECT_NAME = 'ns_mdp_lang'
 BRANCH_NAME = 'master'
-ACTIVE_NODE_PATH = ''
+ACTIVE_NODE_PATH = '/h'
 ACTIVE_SELECTION_PATHS = []
 NAMESPACE = ''
 METADATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'metadata.json')
