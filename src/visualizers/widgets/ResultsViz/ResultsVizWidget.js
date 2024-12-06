@@ -5,12 +5,8 @@
  */
 
 define(['plotly',
-<<<<<<< HEAD
-    'css!./styles/ResultsVizWidget.css'], function (plotly) {
-=======
     'blob/BlobClient',
     'css!./styles/ResultsVizWidget.css'], function (Plotly,BlobClient) {
->>>>>>> ff577babacc0aa6fdde7d36b20b2c4b7dd5d5ba0
     'use strict';
 
     var WIDGET_CLASS = 'results-viz';
@@ -39,30 +35,6 @@ define(['plotly',
         this._el.addClass(WIDGET_CLASS);
 
         // Create a dummy header
-<<<<<<< HEAD
-        this._el.append('<h3>Experiment Results Visualization:</h3>');
-
-        this._el.append('<div id="plot-container" style="width:100%; height:400px;"></div>');
-        
-            // Render a Plotly line plot
-        // var data = [
-        //     {
-        //         x: [1, 2, 3, 4, 5],
-        //         y: [10, 14, 18, 22, 26],
-        //         type: 'scatter',
-        //         mode: 'lines+markers',
-        //         name: 'Sample Line Plot'
-        //     }
-        // ];
-
-        // var layout = {
-        //     title: 'Line Plot Example',
-        //     xaxis: { title: 'X Axis' },
-        //     yaxis: { title: 'Y Axis' }
-        // };
-
-        // Plotly.newPlot('plot-container', data, layout);
-=======
         this._el.append('<h3>NS-MDP Experiment Results Visualization</h3>');
 
         this._el.append('<div id="plot-container" style="width:100%; height:400px;"></div>');
@@ -72,7 +44,6 @@ define(['plotly',
         this.logs = {};
 
         
->>>>>>> ff577babacc0aa6fdde7d36b20b2c4b7dd5d5ba0
 
 
         // Registering to events can be done with jQuery (as normal)
