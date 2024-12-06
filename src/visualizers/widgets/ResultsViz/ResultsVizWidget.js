@@ -19,7 +19,7 @@ define(['plotly',
         this._logger = logger.fork('Widget');
 
         this._el = container;
-
+        
         this._client = client;
 
         this.nodes = {};
@@ -101,7 +101,7 @@ define(['plotly',
             this.nodes[desc.id] = desc;
             node.innerHTML = 'Adding node "' + desc.name + '" (click to view). It has ' +
                 desc.childrenIds.length + ' ' + label + '.';
-
+            
             // Place holder log function... 
 
      
