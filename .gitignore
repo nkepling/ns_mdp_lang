@@ -35,7 +35,7 @@ blob-local-storage/
 
 
 venv/
-rebuild.sh
+
 
 __pycache__/
 *.pyc
