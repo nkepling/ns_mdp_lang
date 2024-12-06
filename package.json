@@ -22,7 +22,7 @@
     "webgme": "^2.47.0"
   },
   "dependencies": {
-    "plotly.js-dist": "^2.35.2",
+    "plotly.js": "^2.25.2",
     "webgme-bindings": "^1.2.4"
   }
 }
