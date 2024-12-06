@@ -6,7 +6,7 @@
 
 define(['plotly',
     'blob/BlobClient',
-    'css!./styles/ResultsVizWidget.css'], function (Plotly) {
+    'css!./styles/ResultsVizWidget.css'], function (Plotly,BlobClient) {
     'use strict';
 
     var WIDGET_CLASS = 'results-viz';
@@ -20,6 +20,8 @@ define(['plotly',
 
         this.nodes = {};
         this._initialize();
+
+        this._blobClient = new BlobClient({ logger: this._logger.fork('BlobClient') });
 
         this._logger.debug('ctor finished');
     }
@@ -40,6 +42,8 @@ define(['plotly',
         this.activeId = null;
         this.datas = {};
         this.logs = {};
+
+        
 
 
         // Registering to events can be done with jQuery (as normal)
@@ -71,9 +75,17 @@ define(['plotly',
             
             // Place holder log function... 
 
-            
-
-            this.plotLogs(desc);
+     
+            // Fetch node data asynchronously
+            this.loadNodeData(desc)
+            .then((data) => {
+                console.log('Loaded data for node:', desc.id, data);
+                // Pass the loaded data to plotLogs
+                this.plotLogs(data, desc);
+            })
+            .catch((error) => {
+                console.error('Error loading data for node:', desc.id, error);
+            });
 
             
             
@@ -99,14 +111,31 @@ define(['plotly',
     
     ResultsVizWidget.prototype.loadNodeData = function (desc) {
         //Load JSON experiment data from the node a
+        var node_obj = this._client.getNode(desc.id);
 
-        var self = this;
-        var nodeObj = self._client.getNode(desc.id);
+        var results_hash = node_obj.getAttribute('exp_result');
+
+        console.log('Node:', node_obj);
+        console.log('Results Hash:', results_hash);
+
+        if (results_hash) {
+        
+            return this._blobClient.getObjectAsJSON(results_hash)
+            .then((jsonData) => {
+                console.log('Fetched JSON Data:', jsonData);
+                return jsonData; // Return the resolved JSON data
+            })
+            .catch((error) => {
+                console.error('Error fetching JSON data:', error);
+                throw error; // Re-throw the error for the caller to handle
+            });
+    
+        }
 
     };
 
     /***************************** PLOT! */
-    ResultsVizWidget.prototype.plotLogs = function (desc) {
+    ResultsVizWidget.prototype.plotLogs = function (data,desc) {
         var self = this;
     
         self.clearPlot();
