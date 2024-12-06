@@ -23,6 +23,7 @@ define([
 
         // Initialize core collections and variables
         this._widget = options.widget;
+        // this._widget = new ResultsVizWidget(options.logger, options.widgetContainer, this._client);
 
         this._currentNodeId = null;
         this._currentNodeParentId = undefined;

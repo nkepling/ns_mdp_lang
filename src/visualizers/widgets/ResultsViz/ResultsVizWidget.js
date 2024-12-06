@@ -5,18 +5,27 @@
  */
 
 define(['plotly',
+<<<<<<< HEAD
     'css!./styles/ResultsVizWidget.css'], function (plotly) {
+=======
+    'blob/BlobClient',
+    'css!./styles/ResultsVizWidget.css'], function (Plotly,BlobClient) {
+>>>>>>> ff577babacc0aa6fdde7d36b20b2c4b7dd5d5ba0
     'use strict';
 
     var WIDGET_CLASS = 'results-viz';
 
-    function ResultsVizWidget(logger, container) {
+    function ResultsVizWidget(logger, container, client) {
         this._logger = logger.fork('Widget');
 
         this._el = container;
 
+        this._client = client;
+
         this.nodes = {};
         this._initialize();
+
+        this._blobClient = new BlobClient({ logger: this._logger.fork('BlobClient') });
 
         this._logger.debug('ctor finished');
     }
@@ -30,6 +39,7 @@ define(['plotly',
         this._el.addClass(WIDGET_CLASS);
 
         // Create a dummy header
+<<<<<<< HEAD
         this._el.append('<h3>Experiment Results Visualization:</h3>');
 
         this._el.append('<div id="plot-container" style="width:100%; height:400px;"></div>');
@@ -52,6 +62,17 @@ define(['plotly',
         // };
 
         // Plotly.newPlot('plot-container', data, layout);
+=======
+        this._el.append('<h3>NS-MDP Experiment Results Visualization</h3>');
+
+        this._el.append('<div id="plot-container" style="width:100%; height:400px;"></div>');
+        
+        this.activeId = null;
+        this.datas = {};
+        this.logs = {};
+
+        
+>>>>>>> ff577babacc0aa6fdde7d36b20b2c4b7dd5d5ba0
 
 
         // Registering to events can be done with jQuery (as normal)
@@ -81,6 +102,22 @@ define(['plotly',
             node.innerHTML = 'Adding node "' + desc.name + '" (click to view). It has ' +
                 desc.childrenIds.length + ' ' + label + '.';
 
+            // Place holder log function... 
+
+     
+            // Fetch node data asynchronously
+            this.loadNodeData(desc)
+            .then((data) => {
+                console.log('Loaded data for node:', desc.id, data);
+                // Pass the loaded data to plotLogs
+                this.plotLogs(data, desc);
+            })
+            .catch((error) => {
+                console.error('Error loading data for node:', desc.id, error);
+            });
+
+            
+            
             this._el.append(node);
             node.onclick = this.onNodeClick.bind(this, desc.id);
         }
@@ -99,6 +136,71 @@ define(['plotly',
         }
     };
 
+    /***************************** Data Load */
+    
+    ResultsVizWidget.prototype.loadNodeData = function (desc) {
+        //Load JSON experiment data from the node a
+        var node_obj = this._client.getNode(desc.id);
+
+        var results_hash = node_obj.getAttribute('exp_result');
+
+        console.log('Node:', node_obj);
+        console.log('Results Hash:', results_hash);
+
+        if (results_hash) {
+        
+            return this._blobClient.getObjectAsJSON(results_hash)
+            .then((jsonData) => {
+                console.log('Fetched JSON Data:', jsonData);
+                return jsonData; // Return the resolved JSON data
+            })
+            .catch((error) => {
+                console.error('Error fetching JSON data:', error);
+                throw error; // Re-throw the error for the caller to handle
+            });
+    
+        }
+
+    };
+
+    /***************************** PLOT! */
+    ResultsVizWidget.prototype.plotLogs = function (data,desc) {
+        var self = this;
+    
+        self.clearPlot();
+    
+        // Define sample data for the line graph
+        var data = [
+            {
+                x: [1, 2, 3, 4, 5], // X-axis values
+                y: [10, 14, 18, 22, 26], // Y-axis values
+                type: 'bar', // Plot type (scatter for line plot)
+                mode: 'lines+markers', // Line plot with markers
+                name: 'Sample Reward Plot'
+            }
+        ];
+    
+        // Define layout for the plot
+        var layout = {
+            title: 'Sample Reward Plot (Dummy values): ' + desc.name,
+            xaxis: { title: 'Episode Number' },
+            yaxis: { title: 'Cummulative Episode Reward' },
+            showlegend: false
+        };
+    
+        // Render the plot using Plotly
+        Plotly.newPlot('plot-container', data, layout);
+    };
+    
+
+    ResultsVizWidget.prototype.clearPlot = function () {
+        if (this._el) {
+            // Clear the plot container
+            this._el.find('#plot-container').empty();
+            // Add back the plot div
+            this._el.find('#plot-container').append('<div id="plot"></div>');
+        };
+    };
     /* * * * * * * * Visualizer event handlers * * * * * * * */
 
     ResultsVizWidget.prototype.onNodeClick = function (/*id*/) {
