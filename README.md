@@ -8,6 +8,8 @@ In this project we do the following:
 - Integrate the WebGME model with an external Python Package for simulation.
 - Provide a (work in progress) visualizer to examine experiment results
 
+The project uses [Gymnasium](https://gymnasium.farama.org/) Toy environments. 
+
 # NS-MDP Webgme implementation
 ## Installation
 First, install the p2 following:
@@ -35,5 +37,9 @@ Finally, navigate to http://localhost:8888 .
 Create a new project and import nsmdp.webgmex to start using the project!
 
 ## Setting up an Experiment in WebGME:
-1. Under ROOT , make an experiment object.
-2. In the Experiment, Select an Agent and an Environment
+1. Under ROOT, make an experiment object.
+2. In the Experiment, Select an Agent and an NS-Gym Env.
+3. Change the hyperparameters (attributes) of the agent.
+4. Go inside the NS-Gym Env and create a wrapper. Edit the attributes of the wrapper specific to your experiment.
+5. Inside the Wapper select the Gym environment you want to use like Frozen Lake or CartPole.
+6. 
