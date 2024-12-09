@@ -51,3 +51,4 @@ Create a new project and import nsmdp.webgmex to start using the project!
 
 Feel free to use Experiment_test_2 as a reference to model your experiment.
 The result should look like this:
+![screenshot](images/result.png)
