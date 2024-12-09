@@ -77,6 +77,9 @@ define(['plotly',
 
      
             // Fetch node data asynchronously
+
+            var node_obj = this._client.getNode(desc.id);
+
             this.loadNodeData(desc)
             .then((data) => {
                 console.log('Loaded data for node:', desc.id, data);
@@ -104,64 +107,90 @@ define(['plotly',
         if (desc) {
             this._logger.debug('Updating node:', desc);
             this._el.append('<div>Updating node "' + desc.name + '"</div>');
+    
+            // Reload node data and update the plot
+            this.loadNodeData(desc)
+                .then((data) => {
+                    console.log('Updated data for node:', desc.id, data);
+                    this.plotLogs(data, desc); // Replot with the updated data
+                })
+                .catch((error) => {
+                    console.error('Error updating data for node:', desc.id, error);
+                });
         }
     };
-
     /***************************** Data Load */
     
     ResultsVizWidget.prototype.loadNodeData = function (desc) {
-        //Load JSON experiment data from the node a
+        // Load JSON experiment data from the node
         var node_obj = this._client.getNode(desc.id);
-
         var results_hash = node_obj.getAttribute('exp_result');
 
         console.log('Node:', node_obj);
         console.log('Results Hash:', results_hash);
 
         if (results_hash) {
-        
             return this._blobClient.getObjectAsJSON(results_hash)
-            .then((jsonData) => {
-                console.log('Fetched JSON Data:', jsonData);
-                return jsonData; // Return the resolved JSON data
-            })
-            .catch((error) => {
-                console.error('Error fetching JSON data:', error);
-                throw error; // Re-throw the error for the caller to handle
-            });
-    
+                .then((jsonData) => {
+                    console.log('Fetched JSON Data:', jsonData);
+                    return jsonData; // Return the resolved JSON data
+                })
+                .catch((error) => {
+                    console.error('Error fetching JSON data:', error);
+                    throw error; // Re-throw the error for the caller to handle
+                });
+        } else {
+            // Return a rejected Promise if results_hash is missing
+            return Promise.reject(new Error('Results hash is undefined or null for node: ' + desc.id));
         }
 
     };
 
-    /***************************** PLOT! */
-    ResultsVizWidget.prototype.plotLogs = function (data,desc) {
+    ResultsVizWidget.prototype.plotLogs = function (data, desc) {
         var self = this;
+    
+        console.log('Plotting logs:', data);
+
+        console.log("reward",data.episode_rewards);
+    
+        // Extract episode_rewards from the data
+        var episode_rewards = data.episode_rewards;
+    
+        if (!episode_rewards || episode_rewards.length === 0) {
+            console.error('No episode rewards data available to plot');
+            return;
+        }
+    
+        console.log('Episode Rewards:', episode_rewards);
     
         self.clearPlot();
     
-        // Define sample data for the line graph
-        var data = [
+        // Generate the x-axis values (episode numbers)
+        var episode_numbers = Array.from({ length: episode_rewards.length }, (_, i) => i + 1);
+    
+        // Define data for the line graph
+        var plotData = [
             {
-                x: [1, 2, 3, 4, 5], // X-axis values
-                y: [10, 14, 18, 22, 26], // Y-axis values
-                type: 'bar', // Plot type (scatter for line plot)
+                x: episode_numbers, // X-axis values (episode numbers)
+                y: episode_rewards, // Y-axis values (episode rewards)
+                type: 'bar', // Line plot
                 mode: 'lines+markers', // Line plot with markers
-                name: 'Sample Reward Plot'
+                name: 'Episode Rewards'
             }
         ];
     
         // Define layout for the plot
         var layout = {
-            title: 'Sample Reward Plot (Dummy values): ' + desc.name,
+            title: 'Episode Rewards: ' + desc.name,
             xaxis: { title: 'Episode Number' },
-            yaxis: { title: 'Cummulative Episode Reward' },
-            showlegend: false
+            yaxis: { title: 'Cumulative Episode Reward' },
+            showlegend: true
         };
     
         // Render the plot using Plotly
-        Plotly.newPlot('plot-container', data, layout);
+        Plotly.newPlot('plot-container', plotData, layout);
     };
+    
     
 
     ResultsVizWidget.prototype.clearPlot = function () {

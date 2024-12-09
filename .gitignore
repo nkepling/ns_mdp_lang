@@ -43,3 +43,6 @@ __pycache__/
 *.pyd
 *.pyz
 *.pywz
+
+
+.DS_Store
