@@ -10,6 +10,7 @@ First, install the p2 following:
 ```(bash)
 # Clone the repository:
 git clone https://github.com/nkepling/ns_mdp_lang
+cd ns_mdp_lang
 
 # We are running mongo in a separate container. To run mongo:
 docker pull mongo
@@ -20,7 +21,8 @@ docker build -t webgme .
 docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --link mongo:mongo --name=webgme webgme
 ```
 
-Finally, navigate to http://localhost:8888 to start using NS-MDP !
+Finally, navigate to http://localhost:8888 . 
+Create a new project and import nsmdp.webgmex to start using the project!
 
-
-
+## Setting up an Experiment:
+1. Under ROOT , make an experiment object.
