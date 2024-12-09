@@ -36,10 +36,18 @@ docker run -d -p 8888:8888 -v ~/dockershare:/dockershare --link mongo:mongo --na
 Finally, navigate to http://localhost:8888 . 
 Create a new project and import nsmdp.webgmex to start using the project!
 
-## Setting up an Experiment in WebGME:
+## Steps to run an Experiment in WebGME
 1. Under ROOT, make an experiment object.
-2. In the Experiment, Select an Agent and an NS-Gym Env.
+2. In the Experiment, Select an Agent(MCTS or RL) and an NS-Gym Env.
 3. Change the hyperparameters (attributes) of the agent.
-4. Go inside the NS-Gym Env and create a wrapper. Edit the attributes of the wrapper specific to your experiment.
-5. Inside the Wapper select the Gym environment you want to use like Frozen Lake or CartPole.
-6. 
+4. Go inside the NS-Gym Env and create a wrapper (NSClassicControlWrapper or NSClassicControlWrapper). Edit the attributes of the wrapper specific to your experiment.
+5. Inside the Wapper select the Gym environment you want to use like Frozen Lake or CartPole. You can also change the parameters of the environment.
+6. Add an Update function and select tunable paprameters like length.
+7. Inside the update function select the Scheduler and edit the attributes.
+8. Now go inside the experiment and run the ExperimentCodeGenerator plugin.
+9. This will create the code, that you can see as the "code" attribute.
+10. Run the next plugin, RunExperimentCode. This will run the experiment- this will take some time.
+11. The result of the experiment can be seen the ResultsViz and the trace file is also saved as exp_result attribute.
+
+Feel free to use Experiment_test_2 as a reference to model your experiment.
+The result should look like this:
